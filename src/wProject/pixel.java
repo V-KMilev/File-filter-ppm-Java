@@ -12,12 +12,15 @@ public class pixel {
 		this.blue = blue;
 	}
 
-	public int getIntFromColor() {
+	public int getRed() {
+		return this.red;
+	}
 
-		red = (red << 16) & 0x00FF0000;
-		green = (green << 8) & 0x0000FF00;
-		blue = blue & 0x000000FF;
+	public int getGreen() {
+		return this.green;
+	}
 
-		return 0xFF000000 | red | green | blue;
+	public int getBlue() {
+		return this.blue;
 	}
 }

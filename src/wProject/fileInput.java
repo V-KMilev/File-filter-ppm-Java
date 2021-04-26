@@ -1,7 +1,5 @@
 package wProject;
 
-import java.awt.Color;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -13,12 +11,14 @@ public class fileInput {
 
 	private final File file;
 
+	private pixel[][] pixelMatrix;
+
+	private pixel[] pixelLineContent;
+	private pixel[] pixelLines;
+
 	private List<String> lines;
 
-	private int[][] intMatrix;
-
-	private int[] intLineContent;
-	private int[] intLines;
+	private String[][] lineContentRGB;
 
 	private String[] lineContent;
 
@@ -69,7 +69,7 @@ public class fileInput {
 		int x = 0;
 		int y = 0;
 
-		if (lines.get(2) != null) {
+		if (lines.get(2) != null || lines.get(2) != "") {
 
 			lineContent = lines.get(1).split(" ");
 
@@ -77,7 +77,7 @@ public class fileInput {
 			y = Integer.parseInt(lineContent[1]);
 
 		} else
-			System.out.println("[CraftCN resolutionIndex] The file formath is not .ppm!");
+			System.out.println("[CraftCN resolutionIndex] resolution out of index");
 
 		if (index == 'x')
 			return x;
@@ -101,62 +101,70 @@ public class fileInput {
 		return lines;
 	}
 
-	// get the pixels lines into RGB int
-	private int[] getStringIntoRGBInt() {
+	// get the pixels lines into pixel objects
+	private pixel[] getLinesIntoPixels() {
 
 		lines = getPixelsLines();
 
-		intLineContent = new int[lines.size()];
+		pixelLineContent = new pixel[lines.size()];
 
-		for (int i = 0; i < lines.size(); i++)
-			lineContent = lines.get(i).split(" ");
+		lineContentRGB = new String[lines.size()][3];
 
-		// create pixels and fill the array with the RGB int
+		for (int row = 0; row < lines.size(); row++) {
+			for (int column = 0; column < 3; column++) {
+
+				lineContent = lines.get(row).split(" ");
+				lineContentRGB[row][column] = lineContent[row * lines.size() + column];
+			}
+		}
+
+		// create and fill the pixels
 		for (int i = 0; i < lineContent.length; i++) {
 
-			if ((i * 3 + 2) <= lineContent.length) {
+			// set the values of red, green and blue
+			while (i < i / 3) {
 				int red = Integer.parseInt(lineContent[i * 3]);
 				int green = Integer.parseInt(lineContent[i * 3 + 1]);
 				int blue = Integer.parseInt(lineContent[i * 3 + 2]);
 
-				intLineContent[i] = new pixel(red, green, blue).getIntFromColor();
+				pixelLineContent[i] = new pixel(red, green, blue);
 			}
 		}
 
-		return intLineContent;
+		return pixelLineContent;
 	}
 
 	// create and get the image matrix
-	public int[][] getMatrix() {
+	public pixel[][] getMatrix() {
 
 		int x = getResolutionIndex('x');
 		int y = getResolutionIndex('y');
 
-		intMatrix = new int[x][y];
+		pixelMatrix = new pixel[x][y];
 
-		intLines = getStringIntoRGBInt();
+		pixelLines = getLinesIntoPixels();
 
 		for (int row = 0; row < y; row++) {
 			for (int column = 0; column < x; column++) {
 
-				intMatrix[row][column] = intLines[row * x + column];
-				System.out.println(intMatrix[row][column]);
+				pixelMatrix[row][column] = pixelLines[row * x + column];
+				System.out.print(pixelMatrix[row][column] + " ");
 			}
 		}
 
-		return intMatrix;
+		return pixelMatrix;
 	}
 
 	// filter to a specific scale
-	private int[][] filter(int scaleOne, int scaleTwo) {
+	private pixel[][] filter(int scaleOne, int scaleTwo) {
 
-		intMatrix = getMatrix();
+		pixelMatrix = getMatrix();
 
 		return null;
 	}
 
 	// Filter Sharpen (3x3)
-	private Color[][] sharpen3x3() {
+	private pixel[][] sharpen3x3() {
 
 		filter(3, 3);
 
@@ -164,7 +172,7 @@ public class fileInput {
 	}
 
 	// Filter Gaussian Blur (3x3)
-	private Color[][] gaussianBlur3x3() {
+	private pixel[][] gaussianBlur3x3() {
 
 		filter(3, 3);
 
@@ -172,7 +180,7 @@ public class fileInput {
 	}
 
 	// Filter Gaussian Blur (5x5)
-	private Color[][] gaussianBlur5x5() {
+	private pixel[][] gaussianBlur5x5() {
 
 		filter(5, 5);
 

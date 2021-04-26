@@ -8,13 +8,13 @@ import java.util.Scanner;
 public class run {
 	public static void main(String[] args) throws IOException {
 
-		boolean containableFile = true;
-
 		try (Scanner scanner = new Scanner(System.in)) {
 
 			String fileName = "resourses\\input.ppm";
 
 			File file = new File(fileName);
+
+			boolean containableFile = true;
 
 			if (!file.exists()) {
 				System.out.println("[CraftCN run] This file does not exist!");
