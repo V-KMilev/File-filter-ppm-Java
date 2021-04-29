@@ -11,19 +11,6 @@ public class fileInput {
 
 	private final File file;
 
-	private pixel[][] pixelMatrix;
-
-	private pixel[] pixelLineContent;
-	private pixel[] pixelLines;
-
-	private List<String> lines;
-
-	private String[][] lineContentRGB;
-
-	private String[] lineContent;
-
-	private String currentLine = "";
-
 	private Scanner scanner;
 
 	public fileInput(File file) {
@@ -41,7 +28,7 @@ public class fileInput {
 
 		getFile(file);
 
-		lines = new ArrayList<>();
+		List<String> lines = new ArrayList<>();
 
 		try {
 			scanner = new Scanner(file);
@@ -53,7 +40,7 @@ public class fileInput {
 
 		while (scanner.hasNextLine()) {
 
-			currentLine = scanner.nextLine();
+			String currentLine = scanner.nextLine();
 
 			lines.add(currentLine);
 		}
@@ -64,14 +51,14 @@ public class fileInput {
 	// get the resolution indexes
 	private int getResolutionIndex(char index) {
 
-		lines = getFileLines();
+		List<String> lines = getFileLines();
 
 		int x = 0;
 		int y = 0;
 
 		if (lines.get(2) != null || lines.get(2) != "") {
 
-			lineContent = lines.get(1).split(" ");
+			String[] lineContent = lines.get(1).split(" ");
 
 			x = Integer.parseInt(lineContent[0]);
 			y = Integer.parseInt(lineContent[1]);
@@ -92,7 +79,7 @@ public class fileInput {
 	// get the image lines only
 	private List<String> getPixelsLines() {
 
-		lines = getFileLines();
+		List<String> lines = getFileLines();
 
 		lines.remove(0);
 		lines.remove(0);
@@ -102,87 +89,78 @@ public class fileInput {
 	}
 
 	// get the pixels lines into pixel objects
-	private pixel[] getLinesIntoPixels() {
+	private List<Pixel> getLinesIntoPixels() {
 
-		lines = getPixelsLines();
+		List<String> lines = getPixelsLines();
 
-		pixelLineContent = new pixel[lines.size()];
-
-		lineContentRGB = new String[lines.size()][3];
-
-		for (int row = 0; row < lines.size(); row++) {
-			for (int column = 0; column < 3; column++) {
-
-				lineContent = lines.get(row).split(" ");
-				lineContentRGB[row][column] = lineContent[row * lines.size() + column];
-			}
-		}
+		List<Pixel> pixelLineContent = new ArrayList<Pixel>();
 
 		// create and fill the pixels
-		for (int i = 0; i < lineContent.length; i++) {
+		for (int i = 0; i < lines.size(); i++) {
+
+			String[] rgb = lines.get(i).split(" ");
 
 			// set the values of red, green and blue
-			while (i < i / 3) {
-				int red = Integer.parseInt(lineContent[i * 3]);
-				int green = Integer.parseInt(lineContent[i * 3 + 1]);
-				int blue = Integer.parseInt(lineContent[i * 3 + 2]);
+			int red = Integer.parseInt(rgb[0]);
+			int green = Integer.parseInt(rgb[1]);
+			int blue = Integer.parseInt(rgb[2]);
 
-				pixelLineContent[i] = new pixel(red, green, blue);
-			}
+			pixelLineContent.add(new Pixel(red, green, blue));
 		}
 
 		return pixelLineContent;
 	}
 
 	// create and get the image matrix
-	public pixel[][] getMatrix() {
+	public Pixel[][] getMatrix() {
 
 		int x = getResolutionIndex('x');
 		int y = getResolutionIndex('y');
 
-		pixelMatrix = new pixel[x][y];
+		Pixel[][] pixelMatrix = new Pixel[y][x];
 
-		pixelLines = getLinesIntoPixels();
+		List<Pixel> pixelLines = getLinesIntoPixels();
 
 		for (int row = 0; row < y; row++) {
 			for (int column = 0; column < x; column++) {
 
-				pixelMatrix[row][column] = pixelLines[row * x + column];
-				System.out.print(pixelMatrix[row][column] + " ");
+				pixelMatrix[row][column] = pixelLines.get(row * x + column);
+				System.out.print(pixelMatrix[row][column].getRed() + " ");
 			}
+			System.out.println();
 		}
 
 		return pixelMatrix;
 	}
 
 	// filter to a specific scale
-	private pixel[][] filter(int scaleOne, int scaleTwo) {
+	private Pixel[][] gaussianBlurFilter(int scaleOne, int scaleTwo) {
 
-		pixelMatrix = getMatrix();
+		Pixel[][] pixelMatrix = getMatrix();
 
 		return null;
 	}
 
 	// Filter Sharpen (3x3)
-	private pixel[][] sharpen3x3() {
+	private Pixel[][] sharpen3x3() {
 
-		filter(3, 3);
+		gaussianBlurFilter(3, 3);
 
 		return null;
 	}
 
 	// Filter Gaussian Blur (3x3)
-	private pixel[][] gaussianBlur3x3() {
+	private Pixel[][] gaussianBlur3x3() {
 
-		filter(3, 3);
+		gaussianBlurFilter(3, 3);
 
 		return null;
 	}
 
 	// Filter Gaussian Blur (5x5)
-	private pixel[][] gaussianBlur5x5() {
+	private Pixel[][] gaussianBlur5x5() {
 
-		filter(5, 5);
+		gaussianBlurFilter(5, 5);
 
 		return null;
 	}

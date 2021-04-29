@@ -1,12 +1,12 @@
 package wProject;
 
-public class pixel {
+public class Pixel {
 
 	private int red;
 	private int green;
 	private int blue;
 
-	public pixel(int red, int green, int blue) {
+	public Pixel(int red, int green, int blue) {
 		this.red = red;
 		this.green = green;
 		this.blue = blue;
