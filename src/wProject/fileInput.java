@@ -76,7 +76,7 @@ public class fileInput {
 			return 0;
 	}
 
-	// get the image lines only
+	// get the Pixels lines only
 	private List<String> getPixelsLines() {
 
 		List<String> lines = getFileLines();
@@ -88,7 +88,7 @@ public class fileInput {
 		return lines;
 	}
 
-	// get the pixels lines into pixel objects
+	// get the Pixels lines into Pixel objects
 	private List<Pixel> getLinesIntoPixels() {
 
 		List<String> lines = getPixelsLines();
@@ -111,8 +111,8 @@ public class fileInput {
 		return pixelLineContent;
 	}
 
-	// create and get the image matrix
-	public Pixel[][] getMatrix() {
+	// create and get the image in Pixel matrix
+	public Pixel[][] getPixelMatrix() {
 
 		int x = getResolutionIndex('x');
 		int y = getResolutionIndex('y');
@@ -136,7 +136,42 @@ public class fileInput {
 	// filter to a specific scale
 	private Pixel[][] gaussianBlurFilter(int scaleOne, int scaleTwo) {
 
-		Pixel[][] pixelMatrix = getMatrix();
+		Pixel[][] pixelMatrix = getPixelMatrix();
+
+		int x = getResolutionIndex('x');
+		int y = getResolutionIndex('y');
+
+		int newX = x;
+		int rowCounter = 0;
+
+		for (int row = 0; row < y; row++) {
+			for (int column = 0; column < x; column++) {
+
+				newX -= scaleOne;
+
+				if (newX == x / scaleOne) {
+					rowCounter++;
+
+//					a
+
+					if (rowCounter == 2) {
+
+						rowCounter = 0;
+						newX = x;
+					}
+				}
+
+				int blurR = pixelMatrix[row][column * scaleOne].getRed();
+				int blurG = pixelMatrix[row][column * scaleOne + 1].getGreen();
+				int blurB = pixelMatrix[row][column * scaleOne + 2].getBlue();
+			}
+		}
+
+		for (int row = 0; row < scaleOne; row++) {
+			for (int column = 0; column < scaleTwo; column++) { 
+
+			}
+		}
 
 		return null;
 	}

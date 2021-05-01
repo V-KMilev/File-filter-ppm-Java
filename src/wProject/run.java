@@ -34,7 +34,7 @@ public class run {
 			if (containableFile == true) {
 
 				fileInput server = new fileInput(file);
-				server.getMatrix();
+				server.getPixelMatrix();
 			}
 		}
 	}
