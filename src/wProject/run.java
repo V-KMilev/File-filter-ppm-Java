@@ -33,8 +33,13 @@ public class run {
 
 			if (containableFile == true) {
 
-				fileInput server = new fileInput(file);
-				server.getPixelMatrix();
+				filterWizard filter = new filterWizard(file);
+
+				System.out.println("[CraftCN filter] The filter is running...");
+
+				filter.saveFile(filter.gaussianBlurFilter(9, 19), "test1.ppm");
+
+				System.out.println("[CraftCN filter] The filter Finished!");
 			}
 		}
 	}
