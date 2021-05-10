@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
 
-public class filterWizard {
+public class FilterWizard {
 
 	private final File file;
 
 	private Scanner scanner;
 
-	public filterWizard(File file) {
+	public FilterWizard(File file) {
 		this.file = file;
 	}
 
@@ -25,7 +25,7 @@ public class filterWizard {
 		return file;
 	}
 
-	// get the file content
+	// get the file content into String List
 	private List<String> getFileLines() {
 
 		getFile(file);
@@ -49,23 +49,18 @@ public class filterWizard {
 		return lines;
 	}
 
+	// get the colors max value
+	public int getColorMaxValue() {
+		return Integer.parseInt(getFileLines().get(2));
+	}
+
 	// get the resolution indexes
-	private int getResolutionIndex(char index) {
+	public int getResolutionIndex(char index) {
 
-		List<String> lines = getFileLines();
+		String[] lineContent = getFileLines().get(1).split(" ");
 
-		int x = 0;
-		int y = 0;
-
-		if (lines.get(2) != null || lines.get(2) != "") {
-
-			String[] lineContent = lines.get(1).split(" ");
-
-			x = Integer.parseInt(lineContent[0]);
-			y = Integer.parseInt(lineContent[1]);
-
-		} else
-			System.out.println("[CraftCN getResolutionIndex] resolution out of index");
+		int x = Integer.parseInt(lineContent[0]);
+		int y = Integer.parseInt(lineContent[1]);
 
 		if (index == 'x')
 			return x;
@@ -73,7 +68,7 @@ public class filterWizard {
 			return y;
 	}
 
-	// get the pixels lines only
+	// get the pixel's lines only
 	private List<String> getPixelsLines() {
 
 		List<String> lines = getFileLines();
@@ -85,7 +80,7 @@ public class filterWizard {
 		return lines;
 	}
 
-	// get the String lines into Pixels
+	// get the pixel's lines List into Pixel List
 	private List<Pixel> getLinesIntoPixels() {
 
 		List<String> lines = getPixelsLines();
@@ -106,7 +101,7 @@ public class filterWizard {
 		return pixelLineContent;
 	}
 
-	// get the Pixels into Pixel matrix
+	// get the Pixel List into Pixel matrix
 	private Pixel[][] getPixelMatrix() {
 
 		int x = getResolutionIndex('x');
@@ -125,10 +120,10 @@ public class filterWizard {
 		return pixelMatrix;
 	}
 
-	// get the average pixel in specific scale
-	private Pixel getAvrg(int pixelX, int pixelY, Pixel[][] pixelMatrix, int scaleX, int scaleY) {
+	// get filtered Pixel from specific scale
+	private Pixel getFilteredPixel(int pixelX, int pixelY, Pixel[][] pixelMatrix, int scaleX, int scaleY, char filter) {
 
-		Pixel avrgPixel = new Pixel(0, 0, 0);
+		Pixel newPixel = new Pixel(0, 0, 0);
 
 		int startX = (pixelX - scaleX / 2) >= 0 ? (pixelX - scaleX / 2) : 0;
 		int startY = (pixelY - scaleY / 2) >= 0 ? (pixelY - scaleY / 2) : 0;
@@ -137,31 +132,47 @@ public class filterWizard {
 		int endY = (pixelY + scaleY / 2) < pixelMatrix.length ? (pixelY + scaleY / 2) : pixelMatrix.length - 1;
 
 		for (int column = startX; column < endX; column++) {
-			for (int row = startY; row < endY; row++)
+			for (int row = startY; row < endY; row++) {
 
-				avrgPixel.add(pixelMatrix[row][column]);
+				if (filter == 'S') {
+					if (column == endX / 2 && row == endY / 2)
+						newPixel.add(pixelMatrix[row][column].mult(5));
+
+					else
+						newPixel.add(pixelMatrix[row][column].mult(-1));
+
+				} else if (filter == 'B') {
+					newPixel.add(pixelMatrix[row][column]);
+
+				} else
+					System.out.println("[CraftCN filter] Filter unidentified");
+			}
 		}
 
-		return avrgPixel.sub((endX - startX + 1) * (endY - startY + 1));
+		if (filter == 'B')
+			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
+
+		else
+			return newPixel;
 	}
 
-	// filter the pixel matrix with gaussianBlur with specific scales
-	public Pixel[][] gaussianBlurFilter(int scaleX, int scaleY) {
+	// filter the pixel matrix with a selected filter
+	public Pixel[][] filter(int scaleX, int scaleY, char filter) {
 
 		Pixel[][] pixelMatrix = getPixelMatrix();
 
-		Pixel[][] blurredMatrix = new Pixel[pixelMatrix.length][pixelMatrix[0].length];
+		Pixel[][] filteredMatrix = new Pixel[pixelMatrix.length][pixelMatrix[0].length];
 
 		for (int row = 0; row < pixelMatrix.length; row++) {
 			for (int column = 0; column < pixelMatrix[0].length; column++)
 
-				blurredMatrix[row][column] = getAvrg(column, row, pixelMatrix, scaleX, scaleY);
+				filteredMatrix[row][column] = getFilteredPixel(column, row, pixelMatrix, scaleX, scaleY, filter);
 		}
 
-		return blurredMatrix;
+		return filteredMatrix;
 	}
 
-	// create new (filtered) .ppm file
+	// create new PPM file
 	public void saveFile(Pixel[][] matrix, String name) {
 
 		File filteredFile = new File(name);

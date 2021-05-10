@@ -5,7 +5,8 @@ import java.io.IOException;
 
 import java.util.Scanner;
 
-public class run {
+public class Run {
+
 	public static void main(String[] args) throws IOException {
 
 		try (Scanner scanner = new Scanner(System.in)) {
@@ -33,13 +34,13 @@ public class run {
 
 			if (containableFile == true) {
 
-				filterWizard filter = new filterWizard(file);
+				FilterWizard filter = new FilterWizard(file);
 
 				System.out.println("[CraftCN filter] The filter is running...");
 
-				filter.saveFile(filter.gaussianBlurFilter(9, 19), "test1.ppm");
+				filter.saveFile(filter.filter(13, 13, 'B'), "test1.ppm");
 
-				System.out.println("[CraftCN filter] The filter Finished!");
+				System.out.println("[CraftCN filter] The filter finished!");
 			}
 		}
 	}
