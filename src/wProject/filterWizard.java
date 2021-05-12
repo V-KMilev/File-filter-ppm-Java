@@ -15,6 +15,8 @@ public class FilterWizard {
 
 	private Scanner scanner;
 
+	public static int colorMaxValue;
+
 	public FilterWizard(File file) {
 		this.file = file;
 	}
@@ -46,12 +48,9 @@ public class FilterWizard {
 			lines.add(currentLine);
 		}
 
-		return lines;
-	}
+		colorMaxValue = Integer.parseInt(lines.get(2));
 
-	// get the colors max value
-	public int getColorMaxValue() {
-		return Integer.parseInt(getFileLines().get(2));
+		return lines;
 	}
 
 	// get the resolution indexes
@@ -135,8 +134,13 @@ public class FilterWizard {
 			for (int row = startY; row < endY; row++) {
 
 				if (filter == 'S') {
-					if (column == endX / 2 && row == endY / 2)
+					if (column == ((startX + endX) / 2) && row == ((startY + endY) / 2))
 						newPixel.add(pixelMatrix[row][column].mult(5));
+
+					else if ((column == startX && row == startY) || (column == startX && row == endY)
+							|| (column == endX && row == startY) || (column == endX && row == endY))
+
+						newPixel.add(pixelMatrix[row][column].mult(0));
 
 					else
 						newPixel.add(pixelMatrix[row][column].mult(-1));
@@ -153,7 +157,7 @@ public class FilterWizard {
 			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
 
 		else
-			return newPixel;
+			return newPixel.div(1);
 	}
 
 	// filter the pixel matrix with a selected filter

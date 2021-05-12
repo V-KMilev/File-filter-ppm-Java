@@ -10,20 +10,20 @@ public class Pixel {
 		this.red = red;
 		this.green = green;
 		this.blue = blue;
+
 	}
 
 	// color fix for sharp filter
 	private int colorFix(int color, int number) {
 
-		if (color * number < 0)
+		if (color / number < 0 || color < 0)
 			return color = 0;
 
-		// 255 needs to be .getColorMaxValue();
-		else if (color * number > 255)
-			return color = 255;
+		else if (color / number > FilterWizard.colorMaxValue || color > FilterWizard.colorMaxValue)
+			return color = FilterWizard.colorMaxValue;
 
 		else
-			return color *= number;
+			return color /= number;
 	}
 
 	// get red value
@@ -43,7 +43,7 @@ public class Pixel {
 
 	// multiplies and get the sharped pixel
 	public Pixel mult(int number) {
-		return new Pixel(colorFix(red, number), colorFix(green, number), colorFix(blue, number));
+		return new Pixel(red *= number, green *= number, blue *= number);
 	}
 
 	// add all the pixel's values in the scale
@@ -55,7 +55,7 @@ public class Pixel {
 
 	// divides and get the average pixel
 	public Pixel div(int number) {
-		return new Pixel(red /= number, green /= number, blue /= number);
+		return new Pixel(colorFix(red, number), colorFix(green, number), colorFix(blue, number));
 	}
 
 	// easier write into the file
