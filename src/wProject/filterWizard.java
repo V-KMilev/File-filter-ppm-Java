@@ -133,7 +133,10 @@ public class FilterWizard {
 		for (int column = startX; column < endX; column++) {
 			for (int row = startY; row < endY; row++) {
 
-				if (filter == 'S') {
+				if (filter == 'B')
+					newPixel.add(pixelMatrix[row][column]);
+
+				else if (filter == 'S') {
 					if (column == ((startX + endX) / 2) && row == ((startY + endY) / 2))
 						newPixel.add(pixelMatrix[row][column].mult(5));
 
@@ -145,9 +148,6 @@ public class FilterWizard {
 					else
 						newPixel.add(pixelMatrix[row][column].mult(-1));
 
-				} else if (filter == 'B') {
-					newPixel.add(pixelMatrix[row][column]);
-
 				} else
 					System.out.println("[CraftCN filter] Filter unidentified");
 			}
@@ -157,7 +157,7 @@ public class FilterWizard {
 			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
 
 		else
-			return newPixel.div(1);
+			return newPixel.sharpFix();
 	}
 
 	// filter the pixel matrix with a selected filter

@@ -14,16 +14,16 @@ public class Pixel {
 	}
 
 	// color fix for sharp filter
-	private int colorFix(int color, int number) {
+	private int colorFix(int color) {
 
-		if (color / number < 0 || color < 0)
+		if (color < 0)
 			return color = 0;
 
-		else if (color / number > FilterWizard.colorMaxValue || color > FilterWizard.colorMaxValue)
+		else if (color > FilterWizard.colorMaxValue)
 			return color = FilterWizard.colorMaxValue;
 
-		else
-			return color /= number;
+		else 
+			return color;
 	}
 
 	// get red value
@@ -55,7 +55,12 @@ public class Pixel {
 
 	// divides and get the average pixel
 	public Pixel div(int number) {
-		return new Pixel(colorFix(red, number), colorFix(green, number), colorFix(blue, number));
+		return new Pixel(red /= number, green /= number, blue /= number);
+	}
+
+	// fixes the sharped Pixel
+	public Pixel sharpFix() {
+		return new Pixel(colorFix(red), colorFix(green), colorFix(blue));
 	}
 
 	// easier write into the file
