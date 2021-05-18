@@ -1,10 +1,11 @@
 package wProject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.Writer;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.FileNotFoundException;
+
 import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -119,8 +120,37 @@ public class FilterWizard {
 		return pixelMatrix;
 	}
 
+	// blueprint of a 3 by 3 box
+	private int box3x3(Pixel newPixel, Pixel[][] pixelMatrix, int column, int row, int startX, int startY, int endX,
+			int endY, int center, int corner, int sides) {
+
+		int div = 0;
+
+		if (row == ((startY + endY) / 2) && column == ((startX + endX) / 2)) {
+
+			newPixel.add(pixelMatrix[row][column].mult(center));
+			div += center;
+
+		} else if ((column == startX && row == startY) || (column == startX && row == endY)
+				|| (column == endX && row == startY) || (column == endX && row == endY)) {
+
+			newPixel.add(pixelMatrix[row][column].mult(corner));
+			div += corner;
+
+		} else {
+			newPixel.add(pixelMatrix[row][column].mult(sides));
+			div += sides;
+
+		}
+
+		return div;
+	}
+
 	// get filtered Pixel from specific scale
-	private Pixel getFilteredPixel(int pixelX, int pixelY, Pixel[][] pixelMatrix, int scaleX, int scaleY, char filter) {
+	private Pixel getFilteredPixel(int pixelX, int pixelY, Pixel[][] pixelMatrix, int scaleX, int scaleY,
+			String filter) {
+
+		int div = 0;
 
 		Pixel newPixel = new Pixel(0, 0, 0);
 
@@ -133,27 +163,30 @@ public class FilterWizard {
 		for (int column = startX; column < endX; column++) {
 			for (int row = startY; row < endY; row++) {
 
-				if (filter == 'B')
+				if (filter == "Box")
 					newPixel.add(pixelMatrix[row][column]);
 
-				else if (filter == 'S') {
-					if (column == ((startX + endX) / 2) && row == ((startY + endY) / 2))
-						newPixel.add(pixelMatrix[row][column].mult(5));
+				else if (filter == "3x3B") {
+					div += box3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 4, 1, 2);
 
-					else if ((column == startX && row == startY) || (column == startX && row == endY)
-							|| (column == endX && row == startY) || (column == endX && row == endY))
+				} else if (filter == "5x5B")
+					newPixel.add(pixelMatrix[row][column]);
 
-						newPixel.add(pixelMatrix[row][column].mult(0));
+				else if (filter == "3x3S")
+					box3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 5, 0, -1);
 
-					else
-						newPixel.add(pixelMatrix[row][column].mult(-1));
-
-				} else
+				else
 					System.out.println("[CraftCN filter] Filter unidentified");
 			}
 		}
 
-		if (filter == 'B')
+		if (filter == "3x3B")
+			return newPixel.div(div);
+
+		else if (filter == "5x5B")
+			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
+
+		else if (filter == "Box")
 			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
 
 		else
@@ -161,7 +194,7 @@ public class FilterWizard {
 	}
 
 	// filter the pixel matrix with a selected filter
-	public Pixel[][] filter(int scaleX, int scaleY, char filter) {
+	public Pixel[][] filter(int scaleX, int scaleY, String filter) {
 
 		Pixel[][] pixelMatrix = getPixelMatrix();
 
