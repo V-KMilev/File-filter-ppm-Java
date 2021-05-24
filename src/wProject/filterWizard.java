@@ -21,14 +21,30 @@ public class FilterWizard {
 	public static int colorMaxValue;
 
 	// kernel matrix for 3 by 3 Gaussian blur
-	private final int[][] kernalMatrixBlur3x3 = { { 1, 2, 1 }, { 2, 4, 2 }, { 1, 2, 1 } };
+	private final int[][] kernalMatrixBlur3x3 =
+		{
+			{ 1, 2, 1 },
+			{ 2, 4, 2 },
+			{ 1, 2, 1 }
+		};
 
 	// kernel matrix for 3 by 3 Sharpen
-	private final int[][] kernalMatrixSharpen3x3 = { { 0, -1, 0 }, { -1, 5, -1 }, { 0, -1, 0 } };
+	private final int[][] kernalMatrixSharpen3x3 =
+		{
+			{ 0, -1, 0 },
+			{ -1, 5, -1 },
+			{ 0, -1, 0 }
+		};
 
 	// kernel for 5 by 5 Gaussian blur
-	private final int[][] kernalMatrixBlur5x5 = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16, 4 }, { 6, 24, 36, 24, 6 },
-			{ 4, 16, 24, 16, 4 }, { 1, 4, 6, 4, 1 } };
+	private final int[][] kernalMatrixBlur5x5 =
+		{
+			{ 1, 4, 6, 4, 1 },
+			{ 4, 16, 24, 16, 4 },
+			{ 6, 24, 36, 24, 6 },
+			{ 4, 16, 24, 16, 4 },
+			{ 1, 4, 6, 4, 1 }
+		};
 
 	public FilterWizard(File file) {
 		this.file = file;
