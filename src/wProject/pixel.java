@@ -13,7 +13,7 @@ public class Pixel {
 
 	}
 
-	// color fix for sharp filter
+	// color fix for sharpen filter
 	private int colorFix(int color) {
 
 		if (color < 0)
@@ -24,21 +24,6 @@ public class Pixel {
 
 		else
 			return color;
-	}
-
-	// get red value
-	public int getRed() {
-		return this.red;
-	}
-
-	// get green value
-	public int getGreen() {
-		return this.green;
-	}
-
-	// get blue value
-	public int getBlue() {
-		return this.blue;
 	}
 
 	// multiplies and get the sharped pixel
@@ -58,8 +43,8 @@ public class Pixel {
 		return new Pixel(red / number, green / number, blue / number);
 	}
 
-	// fixes the sharped Pixel
-	public Pixel sharpFix() {
+	// fixes the sharpened Pixel
+	public Pixel sharpenedPixelFix() {
 		return new Pixel(colorFix(red), colorFix(green), colorFix(blue));
 	}
 

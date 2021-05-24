@@ -38,7 +38,7 @@ public class Run {
 
 				System.out.println("[CraftCN filter] The filter is running...");
 
-				filter.saveFile(filter.filter(5, 5, "5x5B"), "test1.ppm");
+				filter.saveFile(filter.filter(0, 0, "3x3S"), "test1.ppm");
 
 				System.out.println("[CraftCN filter] The filter finished!");
 			}

@@ -9,8 +9,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 
 public class FilterWizard {
@@ -19,7 +17,18 @@ public class FilterWizard {
 
 	private Scanner scanner;
 
+	// max color value
 	public static int colorMaxValue;
+
+	// kernel matrix for 3 by 3 Gaussian blur
+	private final int[][] kernalMatrixBlur3x3 = { { 1, 2, 1 }, { 2, 4, 2 }, { 1, 2, 1 } };
+
+	// kernel matrix for 3 by 3 Sharpen
+	private final int[][] kernalMatrixSharpen3x3 = { { 0, -1, 0 }, { -1, 5, -1 }, { 0, -1, 0 } };
+
+	// kernel for 5 by 5 Gaussian blur
+	private final int[][] kernalMatrixBlur5x5 = { { 1, 4, 6, 4, 1 }, { 4, 16, 24, 16, 4 }, { 6, 24, 36, 24, 6 },
+			{ 4, 16, 24, 16, 4 }, { 1, 4, 6, 4, 1 } };
 
 	public FilterWizard(File file) {
 		this.file = file;
@@ -58,7 +67,7 @@ public class FilterWizard {
 	}
 
 	// get the resolution indexes
-	public int getResolutionIndex(char index) {
+	private int getResolutionIndex(char index) {
 
 		String[] lineContent = getFileLines().get(1).split(" ");
 
@@ -124,40 +133,42 @@ public class FilterWizard {
 
 	}
 
-	// get the multiplied Pixel and the division number in 3 by 3
-	private int pixelMult3x3(Pixel newPixel, Pixel[][] pixelMatrix, int column, int row, int startX, int startY,
-			int endX, int endY, int center, int corner, int side) {
+	// get filtered Pixel for specific kernel
+	private Pixel kernelFilter(int kernelMatrix[][], Pixel pixelMatrix[][], int pixelX, int pixelY) {
+
+		Pixel newPixel = new Pixel(0, 0, 0);
 
 		int div = 0;
 
-		int centerX = (startX + endX) / 2;
-		int centerY = (startY + endY) / 2;
+		int kernalLengthX = kernelMatrix.length;
+		int kernalLengthY = kernelMatrix[0].length;
 
-		if (row == centerY && column == centerX) {
+		int centerKernalX = kernalLengthX / 2;
+		int centerKernalY = kernalLengthY / 2;
 
-			newPixel.add(pixelMatrix[row][column].mult(center));
-			div += center;
+		for (int row = -(kernalLengthX / 2); row <= kernalLengthX / 2; row++) {
+			for (int column = -(kernalLengthY / 2); column <= kernalLengthY / 2; column++) {
 
-		} else if ((column == centerX - 1 && row == centerY) || (column == centerX + 1 && row == centerY)
-				|| (column == centerX && row == centerY - 1) || (column == centerX && row == centerY + 1)) {
+				if (pixelX + row >= pixelMatrix[0].length || pixelY + column >= pixelMatrix.length || pixelX + row < 0
+						|| pixelY + column < 0)
+					continue;
 
-			newPixel.add(pixelMatrix[row][column].mult(side));
-			div += side;
+				newPixel.add(pixelMatrix[pixelY + column][pixelX + row]
+						.mult(kernelMatrix[centerKernalY + column][centerKernalX + row]));
 
-		} else {
-			newPixel.add(pixelMatrix[row][column].mult(corner));
-			div += corner;
-
+				div += kernelMatrix[centerKernalY + column][centerKernalX + row];
+			}
 		}
 
-		return div;
+		if (kernelMatrix == kernalMatrixSharpen3x3)
+			return newPixel.sharpenedPixelFix();
+
+		else
+			return newPixel.div(div);
 	}
 
-	// get filtered Pixel from specific scale
-	private Pixel getFilteredPixel(int pixelX, int pixelY, Pixel[][] pixelMatrix, int scaleX, int scaleY,
-			String filter) {
-
-		int div = 0;
+	// get filtered Pixel for Box blur
+	private Pixel boxFilter(int scaleX, int scaleY, Pixel[][] pixelMatrix, int pixelX, int pixelY) {
 
 		Pixel newPixel = new Pixel(0, 0, 0);
 
@@ -168,42 +179,15 @@ public class FilterWizard {
 		int endY = (pixelY + scaleY / 2) < pixelMatrix.length ? (pixelY + scaleY / 2) : pixelMatrix.length - 1;
 
 		for (int column = startX; column <= endX; column++) {
-			for (int row = startY; row <= endY; row++) {
+			for (int row = startY; row <= endY; row++)
 
-				if (filter == "3x3B")
-					div += pixelMult3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 4, 1, 2);
-
-				else if (filter == "3x3S")
-					pixelMult3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 5, 0, -1);
-
-				else if (filter == "5x5B") {
-				}
-
-				else if (filter == "Box")
-					newPixel.add(pixelMatrix[row][column]);
-
-				else
-					System.out.println("[CraftCN filter] Filter unidentified");
-			}
+				newPixel.add(pixelMatrix[row][column]);
 		}
 
-		if (filter == "3x3B")
-			return newPixel.div(div);
-
-		else if (filter == "3x3S")
-			return newPixel.sharpFix();
-
-		else if (filter == "5x5B")
-			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
-
-		else if (filter == "Box")
-			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
-
-		else
-			return null;
+		return newPixel.div((endX - startX + 1) * (endY - startY + 1));
 	}
 
-	// filter the pixel matrix with a selected filter
+	// filter the Pixel matrix with a selected filter
 	public Pixel[][] filter(int scaleX, int scaleY, String filter) {
 
 		Pixel[][] pixelMatrix = getPixelMatrix();
@@ -211,9 +195,23 @@ public class FilterWizard {
 		Pixel[][] filteredMatrix = new Pixel[pixelMatrix.length][pixelMatrix[0].length];
 
 		for (int row = 0; row < pixelMatrix.length; row++) {
-			for (int column = 0; column < pixelMatrix[0].length; column++)
+			for (int column = 0; column < pixelMatrix[0].length; column++) {
 
-				filteredMatrix[row][column] = getFilteredPixel(column, row, pixelMatrix, scaleX, scaleY, filter);
+				if (filter == "Box")
+					filteredMatrix[row][column] = boxFilter(scaleX, scaleY, pixelMatrix, column, row);
+
+				else if (filter == "3x3B")
+					filteredMatrix[row][column] = kernelFilter(kernalMatrixBlur3x3, pixelMatrix, column, row);
+
+				else if (filter == "3x3S")
+					filteredMatrix[row][column] = kernelFilter(kernalMatrixSharpen3x3, pixelMatrix, column, row);
+
+				else if (filter == "5x5B")
+					filteredMatrix[row][column] = kernelFilter(kernalMatrixBlur5x5, pixelMatrix, column, row);
+
+				else
+					System.out.println("[CraftCN filter] Filter unidentified");
+			}
 		}
 
 		return filteredMatrix;
