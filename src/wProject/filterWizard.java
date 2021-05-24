@@ -8,6 +8,9 @@ import java.io.FileNotFoundException;
 
 import java.util.List;
 import java.util.Scanner;
+
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 
 public class FilterWizard {
@@ -118,28 +121,32 @@ public class FilterWizard {
 		}
 
 		return pixelMatrix;
+
 	}
 
-	// blueprint of a 3 by 3 box
-	private int box3x3(Pixel newPixel, Pixel[][] pixelMatrix, int column, int row, int startX, int startY, int endX,
-			int endY, int center, int corner, int sides) {
+	// get the multiplied Pixel and the division number in 3 by 3
+	private int pixelMult3x3(Pixel newPixel, Pixel[][] pixelMatrix, int column, int row, int startX, int startY,
+			int endX, int endY, int center, int corner, int side) {
 
 		int div = 0;
 
-		if (row == ((startY + endY) / 2) && column == ((startX + endX) / 2)) {
+		int centerX = (startX + endX) / 2;
+		int centerY = (startY + endY) / 2;
+
+		if (row == centerY && column == centerX) {
 
 			newPixel.add(pixelMatrix[row][column].mult(center));
 			div += center;
 
-		} else if ((column == startX && row == startY) || (column == startX && row == endY)
-				|| (column == endX && row == startY) || (column == endX && row == endY)) {
+		} else if ((column == centerX - 1 && row == centerY) || (column == centerX + 1 && row == centerY)
+				|| (column == centerX && row == centerY - 1) || (column == centerX && row == centerY + 1)) {
 
-			newPixel.add(pixelMatrix[row][column].mult(corner));
-			div += corner;
+			newPixel.add(pixelMatrix[row][column].mult(side));
+			div += side;
 
 		} else {
-			newPixel.add(pixelMatrix[row][column].mult(sides));
-			div += sides;
+			newPixel.add(pixelMatrix[row][column].mult(corner));
+			div += corner;
 
 		}
 
@@ -160,20 +167,20 @@ public class FilterWizard {
 		int endX = (pixelX + scaleX / 2) < pixelMatrix[0].length ? (pixelX + scaleX / 2) : pixelMatrix[0].length - 1;
 		int endY = (pixelY + scaleY / 2) < pixelMatrix.length ? (pixelY + scaleY / 2) : pixelMatrix.length - 1;
 
-		for (int column = startX; column < endX; column++) {
-			for (int row = startY; row < endY; row++) {
+		for (int column = startX; column <= endX; column++) {
+			for (int row = startY; row <= endY; row++) {
 
-				if (filter == "Box")
-					newPixel.add(pixelMatrix[row][column]);
-
-				else if (filter == "3x3B") {
-					div += box3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 4, 1, 2);
-
-				} else if (filter == "5x5B")
-					newPixel.add(pixelMatrix[row][column]);
+				if (filter == "3x3B")
+					div += pixelMult3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 4, 1, 2);
 
 				else if (filter == "3x3S")
-					box3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 5, 0, -1);
+					pixelMult3x3(newPixel, pixelMatrix, column, row, startX, startY, endX, endY, 5, 0, -1);
+
+				else if (filter == "5x5B") {
+				}
+
+				else if (filter == "Box")
+					newPixel.add(pixelMatrix[row][column]);
 
 				else
 					System.out.println("[CraftCN filter] Filter unidentified");
@@ -183,6 +190,9 @@ public class FilterWizard {
 		if (filter == "3x3B")
 			return newPixel.div(div);
 
+		else if (filter == "3x3S")
+			return newPixel.sharpFix();
+
 		else if (filter == "5x5B")
 			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
 
@@ -190,7 +200,7 @@ public class FilterWizard {
 			return newPixel.div((endX - startX + 1) * (endY - startY + 1));
 
 		else
-			return newPixel.sharpFix();
+			return null;
 	}
 
 	// filter the pixel matrix with a selected filter

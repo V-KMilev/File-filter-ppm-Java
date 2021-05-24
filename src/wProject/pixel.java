@@ -22,7 +22,7 @@ public class Pixel {
 		else if (color > FilterWizard.colorMaxValue)
 			return color = FilterWizard.colorMaxValue;
 
-		else 
+		else
 			return color;
 	}
 
@@ -43,7 +43,7 @@ public class Pixel {
 
 	// multiplies and get the sharped pixel
 	public Pixel mult(int number) {
-		return new Pixel(red *= number, green *= number, blue *= number);
+		return new Pixel(red * number, green * number, blue * number);
 	}
 
 	// add all the pixel's values in the scale
@@ -55,7 +55,7 @@ public class Pixel {
 
 	// divides and get the average pixel
 	public Pixel div(int number) {
-		return new Pixel(red /= number, green /= number, blue /= number);
+		return new Pixel(red / number, green / number, blue / number);
 	}
 
 	// fixes the sharped Pixel
