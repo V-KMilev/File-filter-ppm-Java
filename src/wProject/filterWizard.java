@@ -8,8 +8,8 @@ import java.io.FileNotFoundException;
 
 import java.util.List;
 import java.util.Scanner;
-
 import java.util.ArrayList;
+
 
 public class FilterWizard {
 
@@ -162,8 +162,8 @@ public class FilterWizard {
 		int centerKernalX = kernalLengthX / 2;
 		int centerKernalY = kernalLengthY / 2;
 
-		for (int row = -(kernalLengthX / 2); row <= kernalLengthX / 2; row++) {
-			for (int column = -(kernalLengthY / 2); column <= kernalLengthY / 2; column++) {
+		for (int row = -(kernalLengthY / 2); row <= kernalLengthY / 2; row++) {
+			for (int column = -(kernalLengthX / 2); column <= kernalLengthX / 2; column++) {
 
 				if (pixelX + row >= pixelMatrix[0].length || pixelY + column >= pixelMatrix.length || pixelX + row < 0
 						|| pixelY + column < 0)
